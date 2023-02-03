@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JMCCompiler": {
+      "commandName": "Project",
+      "commandLineArgs": "-h"
+    }
+  }
+}
