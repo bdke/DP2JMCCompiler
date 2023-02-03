@@ -15,6 +15,7 @@ namespace JMCCompiler
 
     internal enum ArgType
     {
-        Compile, CompilePath, OutputPath, Namespace, MainFile, OutputMode
+        Compile, CompilePath, OutputPath, Namespace, MainFile, OutputMode,
+        Trim
     }
 }

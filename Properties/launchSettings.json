@@ -2,7 +2,7 @@
   "profiles": {
     "JMCCompiler": {
       "commandName": "Project",
-      "commandLineArgs": "-h"
+      "commandLineArgs": "compile -t -ms -n \"gun\" -p \"D:\\all\\map2\\map\\world\\datapacks\\gun\""
     }
   }
 }

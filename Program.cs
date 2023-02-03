@@ -9,13 +9,20 @@ namespace JMCCompiler
         static string OutputPath = ".";
         static string Namespace = "main";
         static string Mainfile = "main";
+
         const string Version = "v0.0.1";
         static bool IsSingle = true;
+        static bool IsTrim = false;
 
         static List<Arguments> Arguments = new();
-        // -h | compile | -p <files> | -o <path> | -ms | -mm | -n <namespace> | -r <filename> | -v
+        // -h | compile | -p <files> | -o <path> | -ms | -mm | -n <namespace> | -r <filename> | -v | -t
         static async Task<int> Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                WriteError("[ERROR] Missing command");
+            }
+
             if (args.Contains("-h") || 
                 args.Contains("--h") ||
                 args.Contains("-help") ||
@@ -42,6 +49,8 @@ namespace JMCCompiler
                     switch (arg)
                     {
                         case "-p":
+                            if (args.Length < i + 2)
+                                WriteError("[ERROR] Missing input <path>");
                             Arguments.Add(new Arguments
                             {
                                 Value = args[i + 1],
@@ -51,6 +60,8 @@ namespace JMCCompiler
                             i++;
                             continue;
                         case "-o":
+                            if (args.Length < i + 2)
+                                WriteError("[ERROR] Missing input <path>");
                             Arguments.Add(new Arguments
                             {
                                 Value = args[i + 1],
@@ -60,6 +71,8 @@ namespace JMCCompiler
                             i++;
                             continue;
                         case "-n":
+                            if (args.Length < i + 2)
+                                WriteError("[ERROR] Missing input <namespace>");
                             Arguments.Add(new Arguments
                             {
                                 Value = args[i + 1],
@@ -69,6 +82,8 @@ namespace JMCCompiler
                             i++;
                             continue;
                         case "-f":
+                            if (args.Length < i + 2)
+                                WriteError("[ERROR] Missing input <filename>");
                             Arguments.Add(new Arguments
                             {
                                 Value = args[i + 1],
@@ -93,8 +108,15 @@ namespace JMCCompiler
                                 isArg = true
                             });
                             continue;
+                        case "-t":
+                            Arguments.Add(new Arguments
+                            {
+                                ArgType = ArgType.Trim,
+                                isArg = true
+                            });
+                            continue;
                         default:
-                            WriteError($"Unspported argument '{arg}'");
+                            WriteError($"[ERROR] Unspported argument '{arg}'");
                             break;
                     }
                 }
@@ -110,7 +132,7 @@ namespace JMCCompiler
                             });
                             continue;
                         default: 
-                            WriteError($"Unknown Command '{arg}'");
+                            WriteError($"[ERROR] Unknown Command '{arg}'");
                             break;
                     }
                 }
@@ -134,6 +156,9 @@ namespace JMCCompiler
                         continue;
                     case ArgType.OutputMode:
                         IsSingle = arg.Value == "single";
+                        continue;
+                    case ArgType.Trim:
+                        IsTrim = true;
                         continue;
                     default:
                         continue;
@@ -175,6 +200,8 @@ namespace JMCCompiler
                     Specify the output folder path.
                 -ms, -mm:
                     Use Single File mode for -ms, Use Multiple File mode for -mm.
+                -t:
+                    Trim all lines of the function.
             Commands:
                 compile:
                     Compile the datapack to JMC.
@@ -212,10 +239,12 @@ namespace JMCCompiler
                 if (path.Count == 1 || IsSingle)
                 {
                     var value = (from i in mcfunction.Value
-                                 select (i.Trim() != string.Empty && !i.StartsWith("#")) ? "\t" + i.Trim() + ";" : "\t" + i)
+                                 select (i.Trim() != string.Empty && !i.StartsWith("#")) ? "\t" + i.Trim() + ";" : "\t" + i.Replace("#","//"))
                                  .ToList();
+                    if (IsTrim)
+                        value = (from i in value where i.Trim() != string.Empty select "\t" + i.Trim()).ToList();
 
-                    value.Insert(0, "function " + fullpath.Remove(fullpath.Length - 11) + " {");
+                    value.Insert(0, "function " + fullpath.Remove(fullpath.Length - 11) + "() {");
                     value.Add("}");
                     value.Add("");
 
@@ -229,9 +258,12 @@ namespace JMCCompiler
                 else
                 {
                     var value = (from i in mcfunction.Value
-                                 select (i.Trim() != string.Empty && !i.StartsWith("#")) ? "\t" + i.Trim() + ";" : "\t" + i)
+                                 select (i.Trim() != string.Empty && !i.StartsWith("#")) 
+                                 ? "\t" + i.Trim() + ";"
+                                 : "\t" + i.Replace("#", "//"))
                                  .ToList();
-                    value.Insert(0, "function " + fullpath.Remove(fullpath.Length - 11) + " {");
+
+                    value.Insert(0, "function " + fullpath.Remove(fullpath.Length - 11) + "() {");
                     value.Add("}");
                     value.Add("");
                     var stringPath = new List<string>
