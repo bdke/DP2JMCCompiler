@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace JMCCompiler
+﻿namespace JMCCompiler
 {
     internal struct Arguments
     {
-        public ArgType ArgType;
-        public string? Value;
-        public bool isArg;
+        public ArgType ArgType { get; set; }
+        public string? Value { get; set; }
+        public bool isArg { get; set; }
     }
 
     internal enum ArgType

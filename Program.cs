@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-namespace JMCCompiler
+﻿namespace JMCCompiler
 {
     internal class Program
     {
@@ -239,7 +236,9 @@ namespace JMCCompiler
                 if (path.Count == 1 || IsSingle)
                 {
                     var value = (from i in mcfunction.Value
-                                 select (i.Trim() != string.Empty && !i.StartsWith("#")) ? "\t" + i.Trim() + ";" : "\t" + i.Replace("#","//"))
+                                 select (i.Trim() != string.Empty && !i.StartsWith("#")) 
+                                 ? "\t" + i.Trim() + ";" 
+                                 : "\t" + i.Replace("#","//"))
                                  .ToList();
                     if (IsTrim)
                         value = (from i in value where i.Trim() != string.Empty select "\t" + i.Trim()).ToList();
